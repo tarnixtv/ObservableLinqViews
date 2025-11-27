@@ -10,7 +10,7 @@ using static System.Collections.Specialized.NotifyCollectionChangedAction;
 namespace ObservableLinqViews.Tests;
 
 [TestClass]
-public sealed class ObservableSelectViewTests
+public sealed class ObservableSelectLazyTests
 {
     [TestMethod]
     [DataRow(0)]
@@ -20,8 +20,8 @@ public sealed class ObservableSelectViewTests
     public void Count_ReturnsTheCorrectCount(int count)
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, count));
-        var view = source.SelectView(x => x.ToString())
-            .SelectView(x => x.Length);
+        var view = source.SelectLazy(x => x.ToString())
+            .SelectLazy(x => x.Length);
 
         var result = view.Count;
 
@@ -40,7 +40,7 @@ public sealed class ObservableSelectViewTests
     public void Indexer_ReturnsTheCorrectElement(int i, int count)
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, count));
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
 
         var result = view[i];
 
@@ -56,7 +56,7 @@ public sealed class ObservableSelectViewTests
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, count));
 
-        var result = source.SelectView(x => x.ToString());
+        var result = source.SelectLazy(x => x.ToString());
 
         var expected = source.Select(x => x.ToString()).ToList();
         CollectionAssert.AreEqual(expected, result.ToList());
@@ -71,7 +71,7 @@ public sealed class ObservableSelectViewTests
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, count));
         var log = new List<NotifyCollectionChangedEventArgs>();
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
         view.CollectionChanged += (s, e) => log.Add(e);
 
         source.Clear();
@@ -85,7 +85,7 @@ public sealed class ObservableSelectViewTests
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
         var log = new List<NotifyCollectionChangedEventArgs>();
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
         view.CollectionChanged += (s, e) => log.Add(e);
 
         source.Add(5);
@@ -102,7 +102,7 @@ public sealed class ObservableSelectViewTests
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
         var log = new List<NotifyCollectionChangedEventArgs>();
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
         view.CollectionChanged += (s, e) => log.Add(e);
 
         source.RemoveAt(2);
@@ -119,7 +119,7 @@ public sealed class ObservableSelectViewTests
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
         var log = new List<NotifyCollectionChangedEventArgs>();
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
         view.CollectionChanged += (s, e) => log.Add(e);
 
         source[2] = 8;
@@ -139,7 +139,7 @@ public sealed class ObservableSelectViewTests
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
         var log = new List<NotifyCollectionChangedEventArgs>();
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
         view.CollectionChanged += (s, e) => log.Add(e);
 
         source.Move(1, 3);
@@ -155,10 +155,28 @@ public sealed class ObservableSelectViewTests
     }
 
     [TestMethod]
+    public void SelectFn_IsCalledTwice()
+    {
+        var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
+        var callCount = 0;
+
+        var view = source.SelectLazy(x =>
+        {
+            callCount++;
+            return x.ToString();
+        });
+
+        _ = view[2];
+        _ = view[2];
+
+        Assert.AreEqual(2, callCount);
+    }
+
+    [TestMethod]
     public void CollectionChange_WithoutEventHandler_Works()
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
-        var view = source.SelectView(x => x.ToString());
+        var view = source.SelectLazy(x => x.ToString());
 
         try
         {

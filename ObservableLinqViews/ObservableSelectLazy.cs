@@ -9,7 +9,7 @@ using static System.Collections.Specialized.NotifyCollectionChangedAction;
 
 namespace ObservableLinqViews;
 
-public class ObservableSelectView<TCollection, TElement, TNewElement>
+public class ObservableSelectLazy<TCollection, TElement, TNewElement>
     : IReadOnlyList<TNewElement>, INotifyCollectionChanged
     where TCollection : IReadOnlyList<TElement>, INotifyCollectionChanged
 {
@@ -22,7 +22,7 @@ public class ObservableSelectView<TCollection, TElement, TNewElement>
 
     public int Count => this.Source.Count;
 
-    public ObservableSelectView(TCollection source, Func<TElement, TNewElement> selector)
+    public ObservableSelectLazy(TCollection source, Func<TElement, TNewElement> selector)
     {
         this.Source = source;
         this.Selector = selector;
