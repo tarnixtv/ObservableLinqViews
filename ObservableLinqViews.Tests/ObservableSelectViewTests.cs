@@ -115,6 +115,26 @@ public sealed class ObservableSelectViewTests
     }
 
     [TestMethod]
+    public void Replace_IsRaised()
+    {
+        var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
+        var log = new List<NotifyCollectionChangedEventArgs>();
+        var view = source.SelectView(x => x.ToString());
+        view.CollectionChanged += (s, e) => log.Add(e);
+
+        source[2] = 8;
+
+        Assert.HasCount(1, log);
+        Assert.AreEqual(Replace, log[0].Action);
+        Assert.HasCount(1, log[0].OldItems!);
+        Assert.AreEqual("2", log[0].OldItems![0]);
+        Assert.AreEqual(2, log[0].OldStartingIndex);
+        Assert.HasCount(1, log[0].NewItems!);
+        Assert.AreEqual("8", log[0].NewItems![0]);
+        Assert.AreEqual(2, log[0].NewStartingIndex);
+    }
+
+    [TestMethod]
     public void CollectionChange_WithoutEventHandler_Works()
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));

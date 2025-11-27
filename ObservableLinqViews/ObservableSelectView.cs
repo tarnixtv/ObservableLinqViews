@@ -72,5 +72,25 @@ public class ObservableSelectView<TCollection, TElement, TNewElement>
 
             handler(this, args);
         }
+        else if (e is { Action: Replace, NewItems: IList newList, OldItems: IList oldList, NewStartingIndex: int newIndex })
+        {
+            var newNew = new TNewElement[newList.Count];
+
+            for (var i = 0; i < newList.Count; i++)
+            {
+                newNew[i] = this.Selector((TElement)newList[i]!);
+            }
+
+            var newOld = new TNewElement[oldList.Count];
+
+            for (var i = 0; i < oldList.Count; i++)
+            {
+                newOld[i] = this.Selector((TElement)oldList[i]!);
+            }
+
+            var args = new NotifyCollectionChangedEventArgs(Replace, newNew, newOld, newIndex);
+
+            handler(this, args);
+        }
     }
 }
