@@ -46,5 +46,18 @@ public class ObservableSelectView<TCollection, TElement, TNewElement>
         {
             handler(this, e);
         }
+        else if (e is { Action: Add, NewItems: IList toBeAdded, NewStartingIndex: int newStartingIndex })
+        {
+            var newItems = new TNewElement[toBeAdded.Count];
+
+            for (var i = 0; i < toBeAdded.Count; i++)
+            {
+                newItems[i] = this.Selector((TElement)toBeAdded[i]!);
+            }
+
+            var args = new NotifyCollectionChangedEventArgs(Add, newItems, newStartingIndex);
+
+            handler(this, args);
+        }
     }
 }

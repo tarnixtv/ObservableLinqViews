@@ -81,6 +81,23 @@ public sealed class ObservableSelectViewTests
     }
 
     [TestMethod]
+    public void Add_IsRaised()
+    {
+        var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
+        var log = new List<NotifyCollectionChangedEventArgs>();
+        var view = source.SelectView(x => x.ToString());
+        view.CollectionChanged += (s, e) => log.Add(e);
+
+        source.Add(5);
+
+        Assert.HasCount(1, log);
+        Assert.AreEqual(Add, log[0].Action);
+        Assert.HasCount(1, log[0].NewItems!);
+        Assert.AreEqual("5", log[0].NewItems![0]);
+        Assert.AreEqual(5, log[0].NewStartingIndex);
+    }
+
+    [TestMethod]
     public void CollectionChange_WithoutEventHandler_Works()
     {
         var source = new ObservableCollection<int>(Enumerable.Range(0, 5));
