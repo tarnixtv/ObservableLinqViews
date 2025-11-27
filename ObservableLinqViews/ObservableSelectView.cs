@@ -59,5 +59,18 @@ public class ObservableSelectView<TCollection, TElement, TNewElement>
 
             handler(this, args);
         }
+        else if (e is { Action: Remove, OldItems: IList toBeRemoved, OldStartingIndex: int oldStartingIndex })
+        {
+            var oldItems = new TNewElement[toBeRemoved.Count];
+
+            for (var i = 0; i < toBeRemoved.Count; i++)
+            {
+                oldItems[i] = this.Selector((TElement)toBeRemoved[i]!);
+            }
+
+            var args = new NotifyCollectionChangedEventArgs(Remove, oldItems, oldStartingIndex);
+
+            handler(this, args);
+        }
     }
 }
