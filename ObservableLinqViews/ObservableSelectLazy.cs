@@ -10,7 +10,7 @@ using static System.Collections.Specialized.NotifyCollectionChangedAction;
 namespace ObservableLinqViews;
 
 public class ObservableSelectLazy<TCollection, TElement, TNewElement>
-    : IReadOnlyList<TNewElement>, INotifyCollectionChanged
+    : IObservableCollectionViewLazy<TNewElement>
     where TCollection : IReadOnlyList<TElement>, INotifyCollectionChanged
 {
     internal readonly TCollection Source;

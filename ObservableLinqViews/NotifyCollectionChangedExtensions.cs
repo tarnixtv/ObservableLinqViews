@@ -1,19 +1,27 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ObservableLinqViews;
 
+[ExcludeFromCodeCoverage]
 public static class NotifyCollectionChangedExtensions
 {
-    public static ObservableSelectLazy<ObservableCollection<TElement>, TElement, TNewElement> SelectLazy<TElement, TNewElement>(this ObservableCollection<TElement> source, Func<TElement, TNewElement> f)
-        => new(source, f);
+    public static IObservableCollectionViewLazy<TResult> SelectLazy<TSource, TResult>(this ObservableCollection<TSource> source, Func<TSource, TResult> f)
+        => new ObservableSelectLazy<ObservableCollection<TSource>, TSource, TResult>(source, f);
 
-    public static ObservableSelectLazy<ObservableCollection<TElement>, TElement, TNewElement> SelectLazy<TElement, TIntermediate, TNewElement>(this ObservableSelectLazy<ObservableCollection<TElement>, TElement, TIntermediate> source, Func<TIntermediate, TNewElement> f)
-        => new(source.Source, _ => f(source.Selector(_)));
+    public static IObservableCollectionViewLazy<TResult> SelectLazy<TSource, TResult>(this IObservableCollectionViewLazy<TSource> source, Func<TSource, TResult> f)
+        => new ObservableSelectLazy<IObservableCollectionViewLazy<TSource>, TSource, TResult>(source, f);
 
-    public static ObservableSelectEager<ObservableCollection<TElement>, TElement, TNewElement> SelectEager<TElement, TNewElement>(this ObservableCollection<TElement> source, Func<TElement, TNewElement> f)
-        => new(source, f);
+    public static IObservableCollectionViewLazy<TResult> SelectLazy<TIntermediate, TResult>(this IObservableCollectionViewEager<TIntermediate> source, Func<TIntermediate, TResult> f)
+        => new ObservableSelectLazy<IObservableCollectionViewEager<TIntermediate>, TIntermediate, TResult>(source, f);
 
-    public static ObservableSelectEager<ObservableCollection<TElement>, TElement, TNewElement> SelectEager<TElement, TIntermediate, TNewElement>(this ObservableSelectEager<ObservableCollection<TElement>, TElement, TIntermediate> source, Func<TIntermediate, TNewElement> f)
-        => new(source.Source, _ => f(source.Selector(_)));
+    public static IObservableCollectionViewEager<TResult> SelectEager<TSource, TResult>(this ObservableCollection<TSource> source, Func<TSource, TResult> f)
+        => new ObservableSelectEager<ObservableCollection<TSource>, TSource, TResult>(source, f);
+
+    public static IObservableCollectionViewEager<TResult> SelectEager<TSource, TResult>(this IObservableCollectionViewEager<TSource> source, Func<TSource, TResult> f)
+        => new ObservableSelectEager<IObservableCollectionViewEager<TSource>, TSource, TResult>(source, f);
+
+    public static IObservableCollectionViewEager<TResult> SelectEager<TSource, TResult>(this IObservableCollectionViewLazy<TSource> source, Func<TSource, TResult> f)
+        => new ObservableSelectEager<IObservableCollectionViewLazy<TSource>, TSource, TResult>(source, f);
 }
