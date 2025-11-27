@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ObservableLinqViews.Tests/ObservableLinqViews.Tests.csproj" />
+  <Project Path="ObservableLinqViews/ObservableLinqViews.csproj" />
+</Solution>

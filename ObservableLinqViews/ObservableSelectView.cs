@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+
+using static System.Collections.Specialized.NotifyCollectionChangedAction;
+
+namespace ObservableLinqViews;
+
+public class ObservableSelectView<TCollection, TElement, TNewElement>
+    : IReadOnlyList<TNewElement>, INotifyCollectionChanged
+    where TCollection : IReadOnlyList<TElement>, INotifyCollectionChanged
+{
+    internal readonly TCollection Source;
+    internal readonly Func<TElement, TNewElement> Selector;
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+    public TNewElement this[int index] => this.Selector(this.Source[index]);
+
+    public int Count => this.Source.Count;
+
+    public ObservableSelectView(TCollection source, Func<TElement, TNewElement> selector)
+    {
+        this.Source = source;
+        this.Selector = selector;
+
+        this.Source.CollectionChanged += this.Source_CollectionChanged;
+    }
+
+    public IEnumerator<TNewElement> GetEnumerator() => this.Source.Select(this.Selector).GetEnumerator();
+
+    [ExcludeFromCodeCoverage]
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    private void Source_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (this.CollectionChanged is not NotifyCollectionChangedEventHandler handler)
+        {
+            return;
+        }
+
+        if (e is { Action: Reset })
+        {
+            handler(this, e);
+        }
+    }
+}
