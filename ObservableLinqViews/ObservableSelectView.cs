@@ -92,5 +92,18 @@ public class ObservableSelectView<TCollection, TElement, TNewElement>
 
             handler(this, args);
         }
+        else if (e is { Action: Move, NewItems: IList movedItems, NewStartingIndex: int target, OldStartingIndex: int source })
+        {
+            var movedNew = new TNewElement[movedItems.Count];
+
+            for (var i = 0; i < movedItems.Count; i++)
+            {
+                movedNew[i] = this.Selector((TElement)movedItems[i]!);
+            }
+
+            var args = new NotifyCollectionChangedEventArgs(Move, movedNew, target, source);
+
+            handler(this, args);
+        }
     }
 }
